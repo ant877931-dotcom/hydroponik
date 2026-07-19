@@ -1,0 +1,16 @@
+{
+  "alat1": {
+    "ph": 6.5,
+    "tds": 800,
+    "waterTemp": 24.5
+  },
+  "alat2": {
+    "ph": 6.2,
+    "tds": 850,
+    "waterTemp": 25.0
+  },
+  "lingkungan": {
+    "airTemp": 28.0,
+    "humidity": 60
+  }
+}

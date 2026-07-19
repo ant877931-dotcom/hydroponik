@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydroponic Monitoring Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <h1><i class="fa-solid fa-seedling"></i> Hydroponic Real-time Dashboard</h1>
+            <p>Monitoring systems for Device 1, Device 2, and Room Environment</p>
+        </header>
+
+        <main class="grid-layout">
+            <!-- Device 1 -->
+            <section class="dashboard-section" id="alat1-section">
+                <div class="section-header">
+                    <h2>Device 1</h2>
+                    <span class="status-indicator online" title="System Online"></span>
+                </div>
+                <div class="cards-grid">
+                    <div class="card" id="card-a1-ph">
+                        <div class="card-icon"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="card-content">
+                            <h3>pH Level</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a1-ph">--</span>
+                            </div>
+                            <div class="status-text" id="status-a1-ph">Connecting...</div>
+                        </div>
+                    </div>
+                    <div class="card" id="card-a1-tds">
+                        <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+                        <div class="card-content">
+                            <h3>TDS</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a1-tds">--</span>
+                                <span class="unit">ppm</span>
+                            </div>
+                            <div class="status-text" id="status-a1-tds">Connecting...</div>
+                        </div>
+                    </div>
+                    <div class="card" id="card-a1-temp">
+                        <div class="card-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                        <div class="card-content">
+                            <h3>Water Temp</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a1-temp">--</span>
+                                <span class="unit">°C</span>
+                            </div>
+                            <div class="status-text" id="status-a1-temp">Connecting...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Device 2 -->
+            <section class="dashboard-section" id="alat2-section">
+                <div class="section-header">
+                    <h2>Device 2</h2>
+                    <span class="status-indicator online" title="System Online"></span>
+                </div>
+                <div class="cards-grid">
+                    <div class="card" id="card-a2-ph">
+                        <div class="card-icon"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="card-content">
+                            <h3>pH Level</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a2-ph">--</span>
+                            </div>
+                            <div class="status-text" id="status-a2-ph">Connecting...</div>
+                        </div>
+                    </div>
+                    <div class="card" id="card-a2-tds">
+                        <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+                        <div class="card-content">
+                            <h3>TDS</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a2-tds">--</span>
+                                <span class="unit">ppm</span>
+                            </div>
+                            <div class="status-text" id="status-a2-tds">Connecting...</div>
+                        </div>
+                    </div>
+                    <div class="card" id="card-a2-temp">
+                        <div class="card-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                        <div class="card-content">
+                            <h3>Water Temp</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-a2-temp">--</span>
+                                <span class="unit">°C</span>
+                            </div>
+                            <div class="status-text" id="status-a2-temp">Connecting...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Room Environment -->
+            <section class="dashboard-section" id="lingkungan-section">
+                <div class="section-header">
+                    <h2>Room Environment</h2>
+                    <span class="status-indicator online" title="System Online"></span>
+                </div>
+                <div class="cards-grid env-grid">
+                    <div class="card" id="card-env-temp">
+                        <div class="card-icon"><i class="fa-solid fa-temperature-full"></i></div>
+                        <div class="card-content">
+                            <h3>Air Temp</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-env-temp">--</span>
+                                <span class="unit">°C</span>
+                            </div>
+                            <div class="status-text" id="status-env-temp">Connecting...</div>
+                        </div>
+                    </div>
+                    <div class="card" id="card-env-hum">
+                        <div class="card-icon"><i class="fa-solid fa-cloud"></i></div>
+                        <div class="card-content">
+                            <h3>Humidity</h3>
+                            <div class="value-container">
+                                <span class="value" id="val-env-hum">--</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="status-text" id="status-env-hum">Connecting...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Type module is required to use Firebase SDK v9 -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>

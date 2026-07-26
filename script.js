@@ -1,156 +1,117 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-// Firebase project credentials
+// Firebase Configuration (provided)
 const firebaseConfig = {
-    apiKey: "AIzaSyANbryI2Er_P8Eu6bHgkn4I4A6Yc-Cfgjw",
-    authDomain: "hydroponik-592f5.firebaseapp.com",
-    databaseURL: "https://hydroponik-592f5-default-rtdb.firebaseio.com", // Usually required for Realtime Database
-    projectId: "hydroponik-592f5",
-    storageBucket: "hydroponik-592f5.firebasestorage.app",
-    messagingSenderId: "396147590725",
-    appId: "1:396147590725:web:935be827323d80ec68852c",
-    measurementId: "G-LQY4W5LXQS"
+    apiKey: "AIzaSyBF2-gyMKbL_4mKvt_Q0yOVN67B5KtRfXk",
+    databaseURL: "https://hydroponics-2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
 // Initialize Firebase
-let app, db, analytics;
-try {
-    app = initializeApp(firebaseConfig);
-    analytics = getAnalytics(app);
-    db = getDatabase(app);
-} catch (error) {
-    console.error("Firebase initialization error:", error);
-}
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-// Define ideal ranges for visual status cues
-const THRESHOLDS = {
-    ph: { min: 5.5, max: 6.5 },
-    tds: { min: 600, max: 1000 },
-    waterTemp: { min: 18, max: 28 },
-    airTemp: { min: 20, max: 32 },
-    humidity: { min: 50, max: 70 }
+// Store dynamic thresholds from Firebase
+let thresholds = {
+    Environment: {},
+    Installation_A: {},
+    Installation_B: {}
 };
 
-/**
- * Determines the status based on thresholds
- * @param {number} value - The sensor value
- * @param {object} thresholds - Min and max thresholds
- * @returns {object} Status object with CSS class and display text
- */
-function evaluateStatus(value, thresholds) {
-    if (value === null || value === undefined || isNaN(value)) {
-        return { class: '', text: 'No Data' };
-    }
-    
-    if (value < thresholds.min) {
-        return { class: 'status-warning', text: 'Low' };
-    } else if (value > thresholds.max) {
-        // Highlight in danger color if extremely high
-        if (value > thresholds.max * 1.2) {
-            return { class: 'status-danger', text: 'Critical High' };
-        }
-        return { class: 'status-warning', text: 'High' };
-    } else {
-        return { class: 'status-good', text: 'Optimal' };
-    }
-}
-
-/**
- * Updates a specific card's UI with new data
- * @param {string} cardId - The ID of the card wrapper
- * @param {string} valId - The ID of the value text element
- * @param {string} statusId - The ID of the status text element
- * @param {number} value - The actual sensor value
- * @param {string} thresholdKey - Key matching the THRESHOLDS object
- * @param {number} decimalPlaces - Decimals to display (0 for integers)
- */
-function updateCard(cardId, valId, statusId, value, thresholdKey, decimalPlaces = 1) {
+// Helper to update DOM card
+function updateCard(cardId, value, device, type, format = (v) => v) {
     const cardEl = document.getElementById(cardId);
-    const valEl = document.getElementById(valId);
-    const statusEl = document.getElementById(statusId);
+    if (!cardEl) return;
 
-    if (!cardEl || !valEl || !statusEl) return;
+    const valEl = cardEl.querySelector('.value');
+    const rangeEl = cardEl.querySelector('.range-val');
+    const badgeEl = cardEl.querySelector('.badge');
 
-    if (value !== null && value !== undefined) {
-        // Format value
-        const formattedValue = Number.isInteger(value) ? value : parseFloat(value).toFixed(decimalPlaces);
-        valEl.textContent = formattedValue;
+    let minKey, maxKey;
+    if (type === 'ph') { minKey = 'pH_Min'; maxKey = 'pH_Max'; }
+    else if (type === 'tds') { minKey = 'TDS_Nutrition_Min'; maxKey = 'TDS_Nutrition_Max'; }
+    else if (type === 'waterTemp') { minKey = 'Water_Temp_Min'; maxKey = 'Water_Temp_Max'; }
+    else if (type === 'airTemp') { minKey = 'Temperature_Min'; maxKey = 'Temperature_Max'; }
+    else if (type === 'humidity') { minKey = 'Humidity_Min'; maxKey = 'Humidity_Max'; }
 
-        // Apply status classes and text
-        const thresholds = THRESHOLDS[thresholdKey];
-        const status = evaluateStatus(value, thresholds);
+    const min = thresholds[device][minKey];
+    const max = thresholds[device][maxKey];
 
-        // Reset previous status classes
-        cardEl.classList.remove('status-good', 'status-warning', 'status-danger');
-        
-        // Add new status class if applicable
-        if (status.class) {
-            cardEl.classList.add(status.class);
-        }
-        
-        statusEl.textContent = status.text;
+    // Update range text
+    if (min !== undefined && max !== undefined) {
+        rangeEl.textContent = `${min} - ${max}`;
     } else {
-        valEl.textContent = '--';
-        statusEl.textContent = 'Error';
-        cardEl.classList.remove('status-good', 'status-warning', 'status-danger');
+        rangeEl.textContent = `-- - --`;
+    }
+
+    // Update value & badge
+    if (value !== null && value !== undefined) {
+        valEl.textContent = format(value);
+        
+        badgeEl.classList.remove('optimal', 'warning', 'danger');
+        if (min !== undefined && max !== undefined) {
+            if (value >= min && value <= max) {
+                badgeEl.textContent = "Optimal";
+                badgeEl.classList.add('optimal');
+            } else {
+                badgeEl.textContent = "Warning";
+                badgeEl.classList.add('danger');
+            }
+        } else {
+            badgeEl.textContent = "No Threshold";
+            badgeEl.classList.add('warning');
+        }
+    } else {
+        valEl.textContent = "--";
+        badgeEl.textContent = "Waiting";
+        badgeEl.classList.remove('optimal', 'warning', 'danger');
+        badgeEl.classList.add('warning');
     }
 }
 
-// Setup Realtime Database Listeners
-if (db) {
-    // Listen for Alat 1 Data
-    const alat1Ref = ref(db, 'alat1');
-    onValue(alat1Ref, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            // Expected keys: ph, tds, waterTemp
-            updateCard('card-a1-ph', 'val-a1-ph', 'status-a1-ph', data.ph, 'ph', 1);
-            updateCard('card-a1-tds', 'val-a1-tds', 'status-a1-tds', data.tds, 'tds', 0);
-            updateCard('card-a1-temp', 'val-a1-temp', 'status-a1-temp', data.waterTemp, 'waterTemp', 1);
-        } else {
-            updateCard('card-a1-ph', 'val-a1-ph', 'status-a1-ph', null, 'ph');
-            updateCard('card-a1-tds', 'val-a1-tds', 'status-a1-tds', null, 'tds');
-            updateCard('card-a1-temp', 'val-a1-temp', 'status-a1-temp', null, 'waterTemp');
-        }
-    }, (error) => {
-        console.error("Error fetching Alat 1 data:", error);
-    });
+// Database Paths based on structure
+const thresholdRef = ref(db, 'HydroponicSystem/Threshold');
+const monitoringRef = ref(db, 'HydroponicSystem/Monitoring');
 
-    // Listen for Alat 2 Data
-    const alat2Ref = ref(db, 'alat2');
-    onValue(alat2Ref, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            // Expected keys: ph, tds, waterTemp
-            updateCard('card-a2-ph', 'val-a2-ph', 'status-a2-ph', data.ph, 'ph', 1);
-            updateCard('card-a2-tds', 'val-a2-tds', 'status-a2-tds', data.tds, 'tds', 0);
-            updateCard('card-a2-temp', 'val-a2-temp', 'status-a2-temp', data.waterTemp, 'waterTemp', 1);
-        } else {
-            updateCard('card-a2-ph', 'val-a2-ph', 'status-a2-ph', null, 'ph');
-            updateCard('card-a2-tds', 'val-a2-tds', 'status-a2-tds', null, 'tds');
-            updateCard('card-a2-temp', 'val-a2-temp', 'status-a2-temp', null, 'waterTemp');
-        }
-    }, (error) => {
-        console.error("Error fetching Alat 2 data:", error);
-    });
+let currentData = null;
 
-    // Listen for Lingkungan Data
-    const lingkunganRef = ref(db, 'lingkungan');
-    onValue(lingkunganRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            // Expected keys: airTemp (suhu ruang), humidity (kelembapan ruang)
-            updateCard('card-env-temp', 'val-env-temp', 'status-env-temp', data.airTemp, 'airTemp', 1);
-            updateCard('card-env-hum', 'val-env-hum', 'status-env-hum', data.humidity, 'humidity', 0);
-        } else {
-            updateCard('card-env-temp', 'val-env-temp', 'status-env-temp', null, 'airTemp');
-            updateCard('card-env-hum', 'val-env-hum', 'status-env-hum', null, 'humidity');
-        }
-    }, (error) => {
-        console.error("Error fetching Lingkungan data:", error);
-    });
-} else {
-    console.log("Waiting for valid Firebase Configuration...");
+function renderAll() {
+    if (!currentData) return;
+    
+    // Alat 1 (Installation_A)
+    if (currentData.Installation_A) {
+        updateCard('dev1-ph', currentData.Installation_A.pH, 'Installation_A', 'ph', (v) => parseFloat(v).toFixed(1));
+        updateCard('dev1-tds', currentData.Installation_A.TDS_Nutrition, 'Installation_A', 'tds', (v) => parseInt(v));
+        updateCard('dev1-temp', currentData.Installation_A.Water_Temp, 'Installation_A', 'waterTemp', (v) => parseFloat(v).toFixed(1));
+    }
+
+    // Alat 2 (Installation_B)
+    if (currentData.Installation_B) {
+        updateCard('dev2-ph', currentData.Installation_B.pH, 'Installation_B', 'ph', (v) => parseFloat(v).toFixed(1));
+        updateCard('dev2-tds', currentData.Installation_B.TDS_Nutrition, 'Installation_B', 'tds', (v) => parseInt(v));
+        updateCard('dev2-temp', currentData.Installation_B.Water_Temp, 'Installation_B', 'waterTemp', (v) => parseFloat(v).toFixed(1));
+    }
+
+    // Lingkungan (Environment)
+    if (currentData.Environment) {
+        updateCard('env-temp', currentData.Environment.Temperature, 'Environment', 'airTemp', (v) => parseFloat(v).toFixed(1));
+        updateCard('env-hum', currentData.Environment.Humidity, 'Environment', 'humidity', (v) => parseInt(v));
+    }
 }
+
+// Listen to Thresholds dynamically
+onValue(thresholdRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        if (data.Environment) thresholds.Environment = data.Environment;
+        if (data.Installation_A) thresholds.Installation_A = data.Installation_A;
+        if (data.Installation_B) thresholds.Installation_B = data.Installation_B;
+        renderAll(); // Re-evaluate when thresholds change
+    }
+});
+
+// Listen to Monitoring Realtime Data
+onValue(monitoringRef, (snapshot) => {
+    currentData = snapshot.val();
+    renderAll();
+});

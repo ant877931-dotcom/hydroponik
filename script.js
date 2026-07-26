@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getDatabase, ref, onValue, query, limitToLast, orderByKey, startAt, endAt } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
 // Firebase Configuration (provided)
 const firebaseConfig = {
@@ -115,3 +115,133 @@ onValue(monitoringRef, (snapshot) => {
     currentData = snapshot.val();
     renderAll();
 });
+
+// ============================================================
+// CHART + HISTORY — semua dijalankan setelah halaman siap
+// ============================================================
+let chartDev1 = null;
+let chartDev2 = null;
+
+window.addEventListener('load', () => {
+
+    // --- Inisialisasi Chart ---
+    const commonOptions = {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { display: true, title: { display: true, text: 'Waktu' } },
+            yPH:  { type: 'linear', display: true, position: 'left',  title: { display: true, text: 'pH' } },
+            yTDS: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'TDS (ppm)' }, grid: { drawOnChartArea: false } },
+            yTemp:{ type: 'linear', display: true, position: 'right', title: { display: true, text: 'Temp (°C)' }, grid: { drawOnChartArea: false } }
+        }
+    };
+
+    chartDev1 = new Chart(document.getElementById('chart-dev1').getContext('2d'), {
+        type: 'line', data: { labels: [], datasets: [] }, options: JSON.parse(JSON.stringify(commonOptions))
+    });
+    chartDev2 = new Chart(document.getElementById('chart-dev2').getContext('2d'), {
+        type: 'line', data: { labels: [], datasets: [] }, options: JSON.parse(JSON.stringify(commonOptions))
+    });
+
+    // --- Fungsi update chart ---
+    function updateChartData(chart, labels, phData, tdsData, tempData) {
+        if (!chart) return;
+        chart.data.labels = labels;
+        const datasets = [
+            { label: 'pH',   data: phData,   borderColor: '#40916c', backgroundColor: 'transparent', yAxisID: 'yPH',   tension: 0.3, borderWidth: 2, pointRadius: 2 },
+            { label: 'TDS',  data: tdsData,  borderColor: '#023e8a', backgroundColor: 'transparent', yAxisID: 'yTDS',  tension: 0.3, borderWidth: 2, pointRadius: 2 },
+            { label: 'Temp', data: tempData, borderColor: '#e63946', backgroundColor: 'transparent', yAxisID: 'yTemp', tension: 0.3, borderWidth: 2, pointRadius: 2 }
+        ];
+        if (chart.data.datasets.length === 0) {
+            chart.data.datasets = datasets;
+        } else {
+            chart.data.datasets[0].data = phData;
+            chart.data.datasets[1].data = tdsData;
+            chart.data.datasets[2].data = tempData;
+        }
+        chart.update();
+    }
+
+    // --- Tampilkan/sembunyikan pesan kosong ---
+    function toggleEmptyMsg(devId, hasData) {
+        const el = document.getElementById(devId + '-empty-msg');
+        if (el) el.style.display = hasData ? 'none' : 'block';
+    }
+
+    // --- Load History dari Firebase ---
+    let unsubHistory = null;
+
+    function loadHistory(dateStr) {
+        if (unsubHistory) { unsubHistory(); unsubHistory = null; }
+
+        let historyQuery;
+        if (!dateStr) {
+            historyQuery = query(ref(db, 'HydroponicSystem/History'), limitToLast(20));
+        } else {
+            const startKey = dateStr + '_00-00-00';
+            const endKey   = dateStr + '_23-59-59';
+            historyQuery = query(
+                ref(db, 'HydroponicSystem/History'),
+                orderByKey(),
+                startAt(startKey),
+                endAt(endKey)
+            );
+        }
+
+        unsubHistory = onValue(historyQuery, (snapshot) => {
+            const data = snapshot.val();
+            console.log('[History] dateStr:', dateStr, '| jumlah data:', data ? Object.keys(data).length : 0, data);
+
+            if (!data) {
+                toggleEmptyMsg('dev1', false);
+                toggleEmptyMsg('dev2', false);
+                updateChartData(chartDev1, [], [], [], []);
+                updateChartData(chartDev2, [], [], [], []);
+                return;
+            }
+
+            const labels = [];
+            const dev1PH = [], dev1TDS = [], dev1Temp = [];
+            const dev2PH = [], dev2TDS = [], dev2Temp = [];
+            let validDev1 = false, validDev2 = false;
+
+            Object.keys(data).sort().forEach(key => {
+                const entry = data[key];
+
+                // Ambil jam:menit dari kunci "YYYY-MM-DD_HH-mm-ss"
+                let timeLabel = key.length >= 16
+                    ? key.substring(11, 13) + ':' + key.substring(14, 16)
+                    : key;
+                labels.push(timeLabel);
+
+                if (entry.Installation_A) {
+                    dev1PH.push(entry.Installation_A.pH ?? null);
+                    dev1TDS.push(entry.Installation_A.TDS_Nutrition ?? null);
+                    dev1Temp.push(entry.Installation_A.Water_Temp ?? null);
+                    validDev1 = true;
+                } else { dev1PH.push(null); dev1TDS.push(null); dev1Temp.push(null); }
+
+                if (entry.Installation_B) {
+                    dev2PH.push(entry.Installation_B.pH ?? null);
+                    dev2TDS.push(entry.Installation_B.TDS_Nutrition ?? null);
+                    dev2Temp.push(entry.Installation_B.Water_Temp ?? null);
+                    validDev2 = true;
+                } else { dev2PH.push(null); dev2TDS.push(null); dev2Temp.push(null); }
+            });
+
+            toggleEmptyMsg('dev1', validDev1);
+            toggleEmptyMsg('dev2', validDev2);
+            updateChartData(chartDev1, labels, dev1PH, dev1TDS, dev1Temp);
+            updateChartData(chartDev2, labels, dev2PH, dev2TDS, dev2Temp);
+        });
+    }
+
+    // Pertama kali: mode Live
+    loadHistory(null);
+
+    // Event Listeners
+    const datePicker = document.getElementById('history-date');
+
+    datePicker.addEventListener('change', (e) => loadHistory(e.target.value || null));
+
+}); // END window.addEventListener('load')

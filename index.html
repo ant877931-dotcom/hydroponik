@@ -15,6 +15,12 @@
     </header>
 
     <main class="dashboard-main">
+        <!-- Dashboard Controls -->
+        <div class="dashboard-controls">
+            <label for="history-date">📅 Filter Tanggal:</label>
+            <input type="date" id="history-date" class="date-picker">
+        </div>
+
         <!-- Room Environment -->
         <section class="device-section">
             <div class="section-header">
@@ -93,6 +99,11 @@
                     </div>
                 </div>
             </div>
+
+            <div class="chart-container" style="margin-top: 2rem; position: relative;">
+                <div id="dev1-empty-msg" class="empty-data-msg" style="display: none;">Data kosong pada tanggal tersebut</div>
+                <canvas id="chart-dev1" style="max-height: 250px;"></canvas>
+            </div>
         </section>
 
         <!-- Device 2 -->
@@ -139,9 +150,16 @@
                     </div>
                 </div>
             </div>
+
+            <div class="chart-container" style="margin-top: 2rem; position: relative;">
+                <div id="dev2-empty-msg" class="empty-data-msg" style="display: none;">Data kosong pada tanggal tersebut</div>
+                <canvas id="chart-dev2" style="max-height: 250px;"></canvas>
+            </div>
         </section>
+
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

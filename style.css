@@ -1,3 +1,4 @@
+/* ===== CSS Variables ===== */
 :root {
     --bg-main: #fcfbf6;
     --text-dark: #1f3d2c;
@@ -12,6 +13,9 @@
     --badge-text: #ffffff;
 }
 
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
     background-color: var(--bg-main);
     color: var(--text-dark);
@@ -20,92 +24,124 @@ body {
     padding: 0;
 }
 
+/* ===== Header ===== */
 .dashboard-header {
     text-align: center;
-    padding: 4rem 1rem 3rem;
+    padding: 2.5rem 1rem 2rem;
 }
 .dashboard-header h1 {
-    font-size: 2.2rem;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
     font-weight: 700;
     margin: 0 0 0.5rem;
     color: var(--text-dark);
 }
-.dashboard-header h1 i {
-    color: var(--icon-color);
-}
+.dashboard-header h1 i { color: var(--icon-color); }
 .dashboard-header p {
     color: var(--text-light);
-    font-size: 1.1rem;
+    font-size: clamp(0.85rem, 2.5vw, 1.1rem);
     margin: 0;
 }
 
+/* ===== Main Layout ===== */
 .dashboard-main {
     max-width: 1050px;
     margin: 0 auto;
     padding: 0 1rem 3rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
+/* ===== Controls ===== */
+.dashboard-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dashboard-controls label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.date-picker {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--metric-border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 500;
+    outline: none;
+    background: white;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+}
+
+/* ===== Device Section ===== */
 .device-section {
     background: var(--card-bg);
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    padding: 1.8rem;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.05);
 }
 
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .section-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
     font-weight: 700;
     color: var(--text-dark);
 }
 
 .status-indicator {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     background-color: var(--metric-border-top);
     border-radius: 50%;
     box-shadow: 0 0 0 4px var(--icon-bg);
+    flex-shrink: 0;
 }
 
+/* ===== Metrics Grid ===== */
 .metrics-grid {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
 }
 
+/* ===== Metric Card ===== */
 .metric-card {
-    flex: 1;
-    min-width: 240px;
     background: var(--metric-bg);
     border: 2px solid var(--metric-border);
     border-top: 4px solid var(--metric-border-top);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.2rem;
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
 .metric-icon {
-    width: 44px;
-    height: 64px;
+    width: 42px;
+    height: 58px;
     background: var(--icon-bg);
-    border-radius: 22px;
+    border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: var(--icon-color);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     flex-shrink: 0;
 }
 
@@ -117,8 +153,8 @@ body {
 }
 
 .metric-content h4 {
-    margin: 0 0 0.5rem;
-    font-size: 0.85rem;
+    margin: 0 0 0.4rem;
+    font-size: 0.8rem;
     color: var(--text-dark);
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -128,46 +164,114 @@ body {
 .value-wrap {
     display: flex;
     align-items: baseline;
-    gap: 5px;
-    margin-bottom: 0.4rem;
+    gap: 4px;
+    margin-bottom: 0.3rem;
 }
 
 .value {
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
     font-weight: 700;
     color: var(--text-dark);
     line-height: 1;
 }
 
 .unit {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--text-light);
 }
 
 .range {
-    margin: 0 0 0.8rem;
-    font-size: 0.85rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
     color: var(--text-light);
     font-weight: 500;
 }
 
+/* ===== Badges ===== */
 .badge {
-    padding: 4px 16px;
+    padding: 3px 14px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
+.badge.optimal { background: #40916c; color: white; }
+.badge.danger   { background: #d90429; color: white; }
+.badge.warning  { background: #f59e0b; color: white; }
 
-.badge.optimal {
-    background: #40916c;
-    color: white;
+/* ===== Chart Container ===== */
+.chart-container {
+    background: var(--metric-bg);
+    border: 2px solid var(--metric-border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    width: 100%;
 }
-.badge.danger {
-    background: #d90429;
-    color: white;
+
+.chart-container h3 {
+    text-align: center;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
 }
-.badge.warning {
-    background: #f59e0b;
-    color: white;
+
+/* ===== Empty State Message ===== */
+.empty-data-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    z-index: 10;
+    border: 1px solid var(--metric-border);
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+/* ===== Responsive: Tablet (≤ 768px) ===== */
+@media (max-width: 768px) {
+    .dashboard-header { padding: 1.5rem 1rem 1rem; }
+    .device-section { padding: 1.2rem; border-radius: 12px; }
+    .section-header { margin-bottom: 1rem; }
+
+    .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+
+    .metric-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 1rem;
+    }
+
+    .metric-content { align-items: flex-start; }
+
+    .dashboard-controls {
+        justify-content: flex-start;
+    }
+
+    .date-picker { max-width: 100%; }
+}
+
+/* ===== Responsive: Mobile (≤ 480px) ===== */
+@media (max-width: 480px) {
+    .dashboard-main { padding: 0 0.75rem 2rem; gap: 1rem; }
+
+    .metrics-grid { grid-template-columns: 1fr; }
+
+    .metric-card {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .metric-content { align-items: center; }
+
+    .chart-container { padding: 0.8rem; }
 }

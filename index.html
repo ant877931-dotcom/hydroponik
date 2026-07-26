@@ -99,11 +99,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="chart-container" style="margin-top: 2rem; position: relative;">
-                <div id="dev1-empty-msg" class="empty-data-msg" style="display: none;">Data kosong pada tanggal tersebut</div>
-                <canvas id="chart-dev1" style="max-height: 250px;"></canvas>
-            </div>
         </section>
 
         <!-- Device 2 -->
@@ -150,10 +145,39 @@
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="chart-container" style="margin-top: 2rem; position: relative;">
-                <div id="dev2-empty-msg" class="empty-data-msg" style="display: none;">Data kosong pada tanggal tersebut</div>
-                <canvas id="chart-dev2" style="max-height: 250px;"></canvas>
+        <!-- History Charts -->
+        <section class="device-section history-section">
+            <div class="section-header">
+                <h2>📊 History Data</h2>
+                <div id="history-empty-msg" class="history-empty-badge" style="display:none;">Tidak ada data pada tanggal ini</div>
+            </div>
+            <div class="history-charts-grid">
+                <!-- pH Chart -->
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <i class="fa-solid fa-droplet"></i>
+                        <span>pH Level</span>
+                    </div>
+                    <canvas id="chart-ph"></canvas>
+                </div>
+                <!-- TDS Chart -->
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <i class="fa-solid fa-water"></i>
+                        <span>TDS (ppm)</span>
+                    </div>
+                    <canvas id="chart-tds"></canvas>
+                </div>
+                <!-- Temp Chart -->
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <i class="fa-solid fa-temperature-quarter"></i>
+                        <span>Water Temperature (°C)</span>
+                    </div>
+                    <canvas id="chart-temp"></canvas>
+                </div>
             </div>
         </section>
 

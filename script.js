@@ -28,14 +28,20 @@ function updateCard(cardId, value, device, type, format = (v) => v) {
     const badgeEl = cardEl.querySelector('.badge');
 
     let minKey, maxKey;
-    if (type === 'ph') { minKey = 'pH_Min'; maxKey = 'pH_Max'; }
-    else if (type === 'tds') { minKey = 'TDS_Nutrition_Min'; maxKey = 'TDS_Nutrition_Max'; }
-    else if (type === 'waterTemp') { minKey = 'Water_Temp_Min'; maxKey = 'Water_Temp_Max'; }
-    else if (type === 'airTemp') { minKey = 'Temperature_Min'; maxKey = 'Temperature_Max'; }
-    else if (type === 'humidity') { minKey = 'Humidity_Min'; maxKey = 'Humidity_Max'; }
+    let min, max;
 
-    const min = thresholds[device][minKey];
-    const max = thresholds[device][maxKey];
+    if (type === 'ph') { 
+        min = 5.5; max = 7.0; 
+    } else if (type === 'tds') { 
+        min = 1000; max = 1400; 
+    } else {
+        if (type === 'waterTemp') { minKey = 'Water_Temp_Min'; maxKey = 'Water_Temp_Max'; }
+        else if (type === 'airTemp') { minKey = 'Temperature_Min'; maxKey = 'Temperature_Max'; }
+        else if (type === 'humidity') { minKey = 'Humidity_Min'; maxKey = 'Humidity_Max'; }
+        
+        min = thresholds[device][minKey];
+        max = thresholds[device][maxKey];
+    }
 
     // Update range text
     if (min !== undefined && max !== undefined) {
@@ -173,8 +179,7 @@ window.addEventListener('load', () => {
             {
                 label: label2, data: data2,
                 borderColor: color2, backgroundColor: color2 + '22',
-                tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false,
-                borderDash: [5, 3]
+                tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false
             }
         ];
         if (chart.data.datasets.length === 0) {
@@ -255,9 +260,9 @@ window.addEventListener('load', () => {
                 temp2.push(entry.Installation_B?.Water_Temp ?? null);
             });
 
-            updateChart(chartPH,   labels, ph1,   ph2,   'Device 1', 'Device 2', '#40916c', '#e63946');
-            updateChart(chartTDS,  labels, tds1,  tds2,  'Device 1', 'Device 2', '#023e8a', '#f59e0b');
-            updateChart(chartTemp, labels, temp1, temp2, 'Device 1', 'Device 2', '#7b2d8b', '#0ea5e9');
+            updateChart(chartPH,   labels, ph1,   ph2,   'Instalation A', 'Instalation B', '#40916c', '#e63946');
+            updateChart(chartTDS,  labels, tds1,  tds2,  'Instalation A', 'Instalation B', '#023e8a', '#f59e0b');
+            updateChart(chartTemp, labels, temp1, temp2, 'Instalation A', 'Instalation B', '#7b2d8b', '#0ea5e9');
         });
     }
 

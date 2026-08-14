@@ -1,11 +1,11 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/403.html",
-      "destination": "/403.html"
+      "src": "/403.html",
+      "continue": true
     },
     {
-      "source": "/(.*)",
+      "src": "/(.*)",
       "has": [
         {
           "type": "header",
@@ -13,11 +13,12 @@
           "value": "S3CR3T_K3Y_H1DR0P0N1K_2026"
         }
       ],
-      "destination": "/$1"
+      "continue": true
     },
     {
-      "source": "/(.*)",
-      "destination": "/403.html"
+      "src": "/(.*)",
+      "status": 403,
+      "dest": "/403.html"
     }
   ]
 }

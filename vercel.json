@@ -1,19 +1,20 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
+      "src": "/(.*)",
       "has": [
         {
           "type": "header",
-          "key": "X-Sentinel-Secret",
+          "key": "x-sentinel-secret",
           "value": "S3CR3T_K3Y_H1DR0P0N1K_2026"
         }
       ],
-      "destination": "/$1"
+      "continue": true
     },
     {
-      "source": "/(.*)",
-      "destination": "/403.html"
+      "src": "/(.*)",
+      "status": 403,
+      "dest": "/403.html"
     }
   ]
 }

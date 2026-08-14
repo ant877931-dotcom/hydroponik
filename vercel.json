@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "X-Sentinel-Secret",
+          "value": "S3CR3T_K3Y_H1DR0P0N1K_2026"
+        }
+      ],
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/403.html"
+    }
+  ]
+}
